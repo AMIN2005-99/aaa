@@ -64,7 +64,7 @@
     const form = document.getElementById('topicForm');
     const msg = document.getElementById('response-message');
 
-    const webAppUrl = 'https://script.google.com/macros/s/AKfycbxmtv1j1oALAn-Ry4LXMBenrio3Lx9_xcR0w3l5AipPMLwr-I-HaXeXCTzlYCZ-ckAKCg/exec'; // ضع هنا رابط الويب
+    const webAppUrl = 'https://script.google.com/macros/s/AKfycby4CxYF55MM4yUv8aX2tvlPPfmxhf6T2weRv6X9XS-g260s0Ial3-qTFz2HqAx4ncn9BA/exec'; // ضع هنا رابط الويب
 
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
