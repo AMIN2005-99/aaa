@@ -110,7 +110,7 @@
     <button type="submit">تأكيد الاختيار ✅</button>
   </form>
 
-  <script>
+<script>
     const topics = [
       "الذات والوعي",
       "رحلتك الخاصة: كيف تكتشف نفسك قبل أن تختار طريقك؟",
@@ -150,23 +150,49 @@
     const form = document.getElementById('studentForm');
     let selectedTopic = null;
 
-    // IMPORTANT: Paste your Google Web App URL here
-    const webAppUrl = 'https://script.google.com/macros/s/AKfycbyXyUAUe5Hjo9o1gAirDuMW-MbrEDrE0djeJ5caT_tUWpL-EAAljrV50ysMcB7XvPXl/exec';
+    // !!! هام: الصق عنوان URL الجديد الذي حصلت عليه بعد إعادة النشر
+    const webAppUrl = 'https://script.google.com/macros/s/AKfycbyGoZYh-tFg2F3LnVrg8vjaw0zr6RoQunsLqjkM4lUZXlx_V6SawqlS9hDsyrESVZri/exec';
 
+    // هذه الدالة الجديدة ستقوم بتحميل المواضيع مع التحقق من المواضيع المحجوزة
     function loadTopics() {
-      topicsContainer.innerHTML = '';
-      // This example does not use localStorage to check for taken topics to align with saving to Google Sheets
-      topics.forEach(topic => {
-        const card = document.createElement('div');
-        card.className = 'topic-card';
-        card.textContent = topic;
-        card.addEventListener('click', () => {
-          document.querySelectorAll('.topic-card').forEach(c => c.classList.remove('selected'));
-          card.classList.add('selected');
-          selectedTopic = topic;
+      topicsContainer.innerHTML = 'جاري تحميل المواضيع...'; // رسالة انتظار
+
+      // استدعاء دالة doGet في السكربت لجلب المواضيع المحجوزة
+      fetch(webAppUrl)
+        .then(response => response.json())
+        .then(takenTopics => {
+          topicsContainer.innerHTML = ''; // مسح رسالة الانتظار
+          
+          topics.forEach(topic => {
+            const card = document.createElement('div');
+            card.className = 'topic-card';
+            card.textContent = topic;
+
+            // التحقق إذا كان الموضوع موجوداً في قائمة المواضيع المحجوزة
+            if (takenTopics.includes(topic)) {
+              card.classList.add('taken'); // يمكن إضافة تنسيق CSS خاص
+              card.style.background = '#e0e0e0'; // لون رمادي
+              card.style.cursor = 'not-allowed';
+              card.title = 'تم اختيار هذا الموضوع';
+            } else {
+              // إذا كان الموضوع متاحاً، أضف مستمع النقر
+              card.addEventListener('click', () => {
+                document.querySelectorAll('.topic-card').forEach(c => {
+                  if (!c.classList.contains('taken')) {
+                    c.classList.remove('selected');
+                  }
+                });
+                card.classList.add('selected');
+                selectedTopic = topic;
+              });
+            }
+            topicsContainer.appendChild(card);
+          });
+        })
+        .catch(error => {
+          console.error('Error fetching topics:', error);
+          topicsContainer.innerHTML = 'حدث خطأ في تحميل المواضيع.';
         });
-        topicsContainer.appendChild(card);
-      });
     }
 
     searchInput.addEventListener('input', e => {
@@ -209,8 +235,8 @@
         if (data.result === 'success') {
           alert("✅ تم الحجز بنجاح!");
           form.reset();
-          document.querySelectorAll('.topic-card').forEach(c => c.classList.remove('selected'));
           selectedTopic = null;
+          loadTopics(); // إعادة تحميل المواضيع لإظهار الموضوع الجديد كمحجوز
         } else {
           throw new Error(data.message || 'An unknown error occurred.');
         }
@@ -225,6 +251,7 @@
       });
     });
 
+    // استدعاء الدالة عند تحميل الصفحة لأول مرة
     loadTopics();
-
   </script>
+
